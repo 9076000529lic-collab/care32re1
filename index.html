@@ -4217,6 +4217,31 @@ document.addEventListener("DOMContentLoaded", function () {
           </div>
         </div>
       </footer>
-    </form>
+    </form> 
+
+    <script>
+document.addEventListener("DOMContentLoaded", function () {
+    const menuToggle = document.getElementById("menuToggle");
+    const mobilePanel = document.getElementById("mobilePanel");
+
+    menuToggle.addEventListener("click", function () {
+        menuToggle.classList.toggle("active");
+        mobilePanel.classList.toggle("open");
+
+        const isOpen = mobilePanel.classList.contains("open");
+        menuToggle.setAttribute("aria-expanded", isOpen ? "true" : "false");
+    });
+
+    document.querySelectorAll(".mobile-dropdown-btn").forEach(function (button) {
+        button.addEventListener("click", function () {
+            const target = document.getElementById(button.dataset.target);
+            target.classList.toggle("open");
+
+            const icon = button.querySelector("span");
+            icon.textContent = target.classList.contains("open") ? "−" : "+";
+        });
+    });
+});
+</script>
   </body>
 </html>
