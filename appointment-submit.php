@@ -1,87 +1,99 @@
 <?php
 
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
+if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
-    // Get Form Data
-    $appointment_date = isset($_POST['appointment_date']) ? trim($_POST['appointment_date']) : '';
-    $appointment_time = isset($_POST['appointment_time']) ? trim($_POST['appointment_time']) : '';
+    $appointment_date = trim($_POST["appointment_date"] ?? "");
+    $appointment_time = trim($_POST["appointment_time"] ?? "");
+    $name = trim($_POST["name"] ?? "");
+    $contact = trim($_POST["contact"] ?? "");
+    $email = trim($_POST["email"] ?? "");
+    $message = trim($_POST["message"] ?? "");
 
-    // Validation
-    if (empty($appointment_date) || empty($appointment_time)) {
+
+    // Required Fields Check
+    if (
+        empty($appointment_date) ||
+        empty($appointment_time) ||
+        empty($name) ||
+        empty($contact) ||
+        empty($email)
+    ) {
         echo "<script>
-                alert('Please select Date and Time.');
-                history.back();
+                alert('Please fill all required fields.');
+                window.history.back();
               </script>";
         exit;
     }
 
-    // Change this email
-    $to = "info@yourdomain.com";
 
-    // Subject
+    // Email Validation
+    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        echo "<script>
+                alert('Invalid email address.');
+                window.history.back();
+              </script>";
+        exit;
+    }
+
+
+    // Mobile Validation
+    if (!preg_match('/^[0-9]{10}$/', $contact)) {
+        echo "<script>
+                alert('Please enter a valid 10 digit mobile number.');
+                window.history.back();
+              </script>";
+        exit;
+    }
+
+
+    // EMAIL WHERE YOU WANT TO RECEIVE APPOINTMENTS
+    $to = "your-email@gmail.com";
+
+
     $subject = "New Appointment Booking";
 
-    // Email Body
-    $message = "
-    <html>
-    <head>
-        <title>Appointment Booking</title>
-    </head>
 
-    <body style='font-family:Arial,sans-serif;background:#f5f5f5;padding:20px;'>
+    $body = "
+New Appointment Received
 
-        <table width='600' align='center' cellpadding='10' cellspacing='0'
-        style='background:#ffffff;border:1px solid #ddd;'>
+Name: $name
 
-            <tr style='background:#222;color:#fff;'>
-                <th colspan='2' style='font-size:22px;'>
-                    New Appointment Request
-                </th>
-            </tr>
+Contact Number: $contact
 
-            <tr>
-                <td width='200'><strong>Appointment Date</strong></td>
-                <td>$appointment_date</td>
-            </tr>
+Email: $email
 
-            <tr>
-                <td><strong>Appointment Time</strong></td>
-                <td>$appointment_time</td>
-            </tr>
+Appointment Date: $appointment_date
 
-            <tr>
-                <td><strong>Booked On</strong></td>
-                <td>".date("d-m-Y h:i A")."</td>
-            </tr>
+Appointment Time: $appointment_time
 
-        </table>
+Message:
+$message
+";
 
-    </body>
-    </html>
-    ";
 
-    // Email Headers
-    $headers  = "MIME-Version: 1.0\r\n";
-    $headers .= "Content-type:text/html;charset=UTF-8\r\n";
-    $headers .= "From: Website <noreply@yourdomain.com>\r\n";
+    $headers = "From: Website Appointment <noreply@yourdomain.com>\r\n";
+    $headers .= "Reply-To: $email\r\n";
 
-    // Send Mail
-    if(mail($to,$subject,$message,$headers)){
+
+    if (mail($to, $subject, $body, $headers)) {
 
         echo "<script>
-                alert('Appointment Booked Successfully.');
+                alert('Appointment booked successfully.');
                 window.location.href='index.html';
               </script>";
 
-    }else{
+    } else {
 
         echo "<script>
-                alert('Email Sending Failed!');
-                history.back();
+                alert('Something went wrong. Please try again.');
+                window.history.back();
               </script>";
-
     }
 
+} else {
+
+    header("Location: index.html");
+    exit;
 }
 
 ?>
